@@ -1,0 +1,160 @@
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import api from "../../services/api";
+import Header from "../../components/Header/index";
+import Container from "../../components/Container/index";
+
+import { InnerPage, MovieDetails, Genres, Loading } from "./styles";
+
+export default class MovieDetail extends Component {
+  static propTypes = {
+    match: PropTypes.shape({
+      params: PropTypes.shape({
+        id: PropTypes.string
+      })
+    }).isRequired
+  };
+
+  state = {
+    details: {},
+    loading: true
+  };
+  async componentDidMount() {
+    const { match } = this.props;
+    const id = match.params.id;
+
+    const [details, movie] = await Promise.all([
+      api.get(
+        `/3/movie/${id}?api_key=08555db9f6be8fa06d4c47bc7e2d3335&language=pt-BR`
+      ),
+      api.get(`/3/movie/${id}/videos?api_key=08555db9f6be8fa06d4c47bc7e2d3335`)
+    ]);
+
+    this.setState({
+      details: details.data,
+      movie: movie.data.results.filter(item => {
+        return item.type === "Trailer";
+      }),
+      loading: false
+    });
+
+    console.log(details);
+    console.log(movie);
+  }
+  render() {
+    const { details, movie, loading } = this.state;
+
+    if (loading) {
+      return <Loading>Carregando...</Loading>;
+    }
+
+    return (
+      <>
+        <Header>
+          <h1>Movies</h1>
+        </Header>
+        <InnerPage>
+          <header>
+            <div>
+              <Container>
+                <h1>{details.title}</h1>
+                <span>
+                  {details.release_date
+                    .split("-")
+                    .reverse()
+                    .join("/")}
+                </span>
+              </Container>
+            </div>
+          </header>
+          <MovieDetails>
+            <Container>
+              <div>
+                <div>
+                  <h2>Sinopse</h2>
+                  <p>{details.overview}</p>
+                </div>
+                <div>
+                  <h2>Informações</h2>
+                  <div className="infos">
+                    <div>
+                      <h3>Situação</h3>
+                      <span>{details.status}</span>
+                    </div>
+                    <div>
+                      <h3>Idioma</h3>
+                      <span>
+                        <ul>
+                          {details.spoken_languages.map(language => (
+                            <li key={language.name}>{language.name}</li>
+                          ))}
+                        </ul>
+                      </span>
+                    </div>
+                    <div>
+                      <h3>Duração</h3>
+                      <span>{details.runtime}min</span>
+                    </div>
+                    <div>
+                      <h3>Orçamento</h3>
+                      <span>
+                        {details.budget.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL"
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <h3>Receita</h3>
+                      <span>
+                        {details.revenue.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL"
+                        })}
+                      </span>
+                    </div>
+                    <div>
+                      <h3>Lucro</h3>
+                      <span>
+                        {(details.revenue - details.budget).toLocaleString(
+                          "pt-BR",
+                          {
+                            style: "currency",
+                            currency: "BRL"
+                          }
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <footer>
+                  <Genres>
+                    {details.genres.map(genre => (
+                      <li key={genre.id}>{genre.name}</li>
+                    ))}
+                  </Genres>
+                  <div className="vote-average">
+                    {details.vote_average * 10}%
+                  </div>
+                </footer>
+              </div>
+            </Container>
+            <figure>
+              <img
+                src={`http://image.tmdb.org/t/p/w500/${details.poster_path}`}
+                alt={`Capa do filme ${details.title}`}
+              ></img>
+            </figure>
+          </MovieDetails>
+          <iframe
+            src={`https://www.youtube.com/embed/${movie[0].key}`}
+            frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            title="Vídeo"
+          ></iframe>
+        </InnerPage>
+      </>
+    );
+  }
+}
