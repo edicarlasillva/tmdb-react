@@ -18,7 +18,11 @@ export default class MovieDetail extends Component {
 
   state = {
     details: {},
-    loading: true
+    loading: true,
+    currentPage: 1,
+    setCurrentPage: 1,
+    pageCount: 0,
+    setPageCount: 0
   };
   async componentDidMount() {
     const { match } = this.props;

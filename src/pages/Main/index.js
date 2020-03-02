@@ -1,14 +1,24 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import ReactPaginate from "react-paginate";
 import Header from "../../components/Header/index";
-import { Search, MovieItem, Content, Title, Info, Description } from "./styles";
+import {
+  Search,
+  MovieItem,
+  Content,
+  Title,
+  Info,
+  Description,
+  Paginate
+} from "./styles";
 import Container from "../../components/Container/index";
 import api from "../../services/api";
 
 export default class Main extends Component {
   state = {
     textQuery: "",
-    movies: []
+    movies: [],
+    totalPages: 0
   };
   handleInputChange = e => {
     this.setState({ textQuery: e.target.value });
@@ -17,19 +27,38 @@ export default class Main extends Component {
     e.preventDefault();
     // console.log(this.state.textQuery);
 
-    const { textQuery, movies } = this.state;
+    const { textQuery, movies, page } = this.state;
     const response = await api.get(
-      `/3/search/movie?api_key=08555db9f6be8fa06d4c47bc7e2d3335&query=${textQuery}&language=pt-BR`
+      `/3/search/movie?api_key=08555db9f6be8fa06d4c47bc7e2d3335&query=${textQuery}&language=pt-BR&page=${page}`
     );
     this.setState({
       movies: response.data.results,
-      textQuery: ""
+      totalPages: response.data.total_pages
+      //textQuery: ""
     });
 
     console.log(movies);
   };
+
+  handlePageChange = data => {
+    const nextPage = data.selected + 1;
+    const { textQuery, movies, page } = this.state;
+
+    console.log(page);
+
+    const response = api
+      .get(
+        `/3/search/movie?api_key=08555db9f6be8fa06d4c47bc7e2d3335&query=${textQuery}&language=pt-BR&page=${nextPage}`
+      )
+      .then(response => {
+        this.setState({
+          movies: response.data.results
+          //textQuery: ""
+        });
+      });
+  };
   render() {
-    const { textQuery, movies } = this.state;
+    const { textQuery, movies, totalPages } = this.state;
     return (
       <>
         <Header>
@@ -79,6 +108,24 @@ export default class Main extends Component {
               </Content>
             </MovieItem>
           ))}
+          <Paginate>
+            <ReactPaginate
+              pageCount={totalPages}
+              pageRangeDisplayed={5}
+              marginPagesDisplayed={2}
+              previousLabel={""}
+              nextLabel={""}
+              onPageChange={this.handlePageChange}
+              containerClassName={"pagination"}
+              previousLinkClassName={"page-link"}
+              activeClassName={"page-item active"}
+              disabledClassName={"page-item disabled"}
+              activeLinkClassName={"page-link"}
+              pageLinkClassName={"page-link"}
+              nextLinkClassName={"page-link"}
+              breakLinkClassName={"page-link"}
+            />
+          </Paginate>
         </Container>
       </>
     );

@@ -94,3 +94,43 @@ export const Description = styled.article`
     color: #555555;
   }
 `;
+
+export const Paginate = styled.div`
+  ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    li {
+      margin: 10px;
+
+      a {
+        cursor: pointer;
+      }
+    }
+
+    .page-item.active {
+      background-color: #116193;
+      border-radius: 100%;
+      min-width: 50px;
+      min-height: 50px;
+      max-width: 50px;
+      max-height: 50px;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      align-items: center;
+      color: #00e8e4;
+      font-size: 1rem;
+      font-weight: 400;
+      border: 5px solid #00e8e4;
+      margin-right: 20px;
+    }
+  }
+`;
