@@ -45,9 +45,6 @@ export default class MovieDetail extends Component {
       }),
       loading: false
     });
-
-    console.log(details);
-    console.log(movie);
   }
   renderIframe() {
     if (this.state.movie.lenght > 0) {

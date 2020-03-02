@@ -25,7 +25,6 @@ export default class Main extends Component {
   };
   handleSubmit = async e => {
     e.preventDefault();
-    // console.log(this.state.textQuery);
 
     const { textQuery, movies, page } = this.state;
     const response = await api.get(
@@ -34,17 +33,12 @@ export default class Main extends Component {
     this.setState({
       movies: response.data.results,
       totalPages: response.data.total_pages
-      //textQuery: ""
     });
-
-    console.log(movies);
   };
 
   handlePageChange = data => {
     const nextPage = data.selected + 1;
-    const { textQuery, movies, page } = this.state;
-
-    console.log(page);
+    const { textQuery, movies } = this.state;
 
     const response = api
       .get(
@@ -53,7 +47,6 @@ export default class Main extends Component {
       .then(response => {
         this.setState({
           movies: response.data.results
-          //textQuery: ""
         });
       });
   };
