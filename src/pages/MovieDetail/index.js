@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { formatPrice } from "../../util/format";
 import api from "../../services/api";
 import Header from "../../components/Header/index";
 import Container from "../../components/Container/index";
@@ -32,8 +33,11 @@ export default class MovieDetail extends Component {
 
     this.setState({
       details: details.data,
+      revenue: formatPrice(details.data.revenue),
+      budget: formatPrice(details.data.budget),
+      profit: formatPrice(details.data.revenue - details.data.budget),
       movie: movie.data.results.filter(item => {
-        return item.type === "Trailer";
+        return item.type == "Trailer";
       }),
       loading: false
     });
@@ -41,8 +45,21 @@ export default class MovieDetail extends Component {
     console.log(details);
     console.log(movie);
   }
+  renderIframe() {
+    if (this.state.movie.lenght > 0) {
+      return (
+        <iframe
+          src={`https://www.youtube.com/embed/${this.state.movie[0].key}`}
+          frameborder="0"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          title="Vídeo"
+        ></iframe>
+      );
+    }
+  }
   render() {
-    const { details, movie, loading } = this.state;
+    const { details, movie, loading, revenue, budget, profit } = this.state;
 
     if (loading) {
       return <Loading>Carregando...</Loading>;
@@ -97,33 +114,15 @@ export default class MovieDetail extends Component {
                     </div>
                     <div>
                       <h3>Orçamento</h3>
-                      <span>
-                        {details.budget.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL"
-                        })}
-                      </span>
+                      <span>{budget}</span>
                     </div>
                     <div>
                       <h3>Receita</h3>
-                      <span>
-                        {details.revenue.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL"
-                        })}
-                      </span>
+                      <span>{revenue}</span>
                     </div>
                     <div>
                       <h3>Lucro</h3>
-                      <span>
-                        {(details.revenue - details.budget).toLocaleString(
-                          "pt-BR",
-                          {
-                            style: "currency",
-                            currency: "BRL"
-                          }
-                        )}
-                      </span>
+                      <span>{profit}</span>
                     </div>
                   </div>
                 </div>
@@ -146,13 +145,7 @@ export default class MovieDetail extends Component {
               ></img>
             </figure>
           </MovieDetails>
-          <iframe
-            src={`https://www.youtube.com/embed/${movie[0].key}`}
-            frameborder="0"
-            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            title="Vídeo"
-          ></iframe>
+          {this.renderIframe()}
         </InnerPage>
       </>
     );
